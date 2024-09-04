@@ -1,5 +1,7 @@
 -module(http).
 -export([parse_request/1]).
+-export([ok/1]).
+-export([get/1]).
 
 %% Main function to parse an HTTP request
 parse_request(R0) ->
@@ -8,26 +10,41 @@ parse_request(R0) ->
     {Body, _} = message_body(R2),
     {RequestLine, Headers, Body}.
 
-request_line(R0) ->
-    SplitResult = re:split(R0, "(?>\r\n|\n|\x0b|\f|\r|\x85)", [{return, list}, {parts, 2}]),
-    case SplitResult of
-        [RequestLine, R1] -> {RequestLine, R1};
-        _ -> {error, "Unexpected split result"}
-    end.
+request_line([$G, $E, $T, 32 |R0]) ->
+    {URI, R1} = request_uri(R0),
+    {Ver, R2} = http_version(R1),
+    [13,10|R3] = R2,
+    {{get, URI, Ver}, R3}.
 
-headers(R1) ->
-    SplitResult = re:split(R1, "(?>\r\n|\n|\x0b|\f|\r|\x85)", [{return, list}, {parts, 2}]),
-    case SplitResult of
-        [Headers, R2] -> {Headers, R2};
-        _ -> {error, "Unexpected split result"}
-    end.
+request_uri([32|R0]) -> 
+    {[], R0};
+request_uri([C|R0]) ->
+    {Rest, R1} = request_uri(R0),
+    {[C|Rest], R1}.
 
-message_body(R2) ->
-    SplitResult = re:split(R2, "(?>\r\n|\n|\x0b|\f|\r|\x85)", [{return, list}, {parts, 2}]),
-    case SplitResult of
-        [[], Body] -> {Body, []};
-        _ -> {error, "Unexpected split result"}
-    end.
+http_version([$H, $T, $T, $P, $/, $1, $., $1 | R0]) ->
+    {v11, R0};
+http_version([$H, $T, $T, $P, $/, $1, $., $0 | R0]) ->
+    {v10, R0}.
+
+headers([13,10|R0]) ->
+    {[],R0};
+headers(R0) ->
+    {Header, R1} = header(R0),
+    {Rest, R2} = headers(R1),
+    {[Header|Rest], R2}.
+header([13,10|R0]) ->
+    {[], R0};
+header([C|R0]) ->
+    {Rest, R1} = header(R0),
+    {[C|Rest], R1}.
+
+message_body(R) -> {R, []}.
+
+ok(Body) ->
+    "HTTP/1.1 200 OK\r\n" ++ "\r\n" ++ Body.
+get(URI) ->
+    "GET " ++ URI ++ " HTTP/1.1\r\n" ++ "\r\n".
 
 
 % GET /index.html HTTP/1.1\r\nHost: www.example.com\r\nUser-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36\r\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8\r\nAccept-Language: en-US,en;q=0.5\r\nAccept-Encoding: gzip, deflate\r\nConnection: keep-alive\r\n\r\nusername=johndoe&password=1234
