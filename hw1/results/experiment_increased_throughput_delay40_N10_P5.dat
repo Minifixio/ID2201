@@ -1,0 +1,9 @@
+Number of handlers in the pool / Reponse time for P=5 parallel machines sending N=10 messages
+1 2058843
+2 1029816
+3 704189
+4 542706
+5 426966
+6 438456
+7 434799
+8 435631
