@@ -1,6 +1,9 @@
 -module(rudy).
 -export([start/1, start/2, stop/0]).
 
+% params :
+%   - Port : port number
+%   - Delay: delay in ms
 init(Port, Delay) ->
     Opt = [list, {active, false}, {reuseaddr, true}],
     case gen_tcp:listen(Port, Opt) of
@@ -11,6 +14,9 @@ init(Port, Delay) ->
             io:format("Error in gen_tcp:listen/2: ~p~n", [Error])
     end.
 
+% params :
+%   - Listen : socket
+%   - Delay: delay in ms
 handler(Listen, Delay) ->
     case gen_tcp:accept(Listen) of
         {ok, Client} ->
@@ -20,6 +26,9 @@ handler(Listen, Delay) ->
             io:format("Error in gen_tcp:accept/1: ~p~n", [Error])
     end.
 
+% params :
+%   - Client : socket
+%   - Delay: delay in ms
 request(Client, Delay) ->
     Recv = gen_tcp:recv(Client, 0),
     case Recv of
@@ -32,6 +41,9 @@ request(Client, Delay) ->
     end,
     gen_tcp:close(Client).
 
+% params :
+%   - Request : request
+%   - Delay: delay in ms
 reply({{get, URI, _}, _, _}, Delay) ->
     timer:sleep(Delay),
     http:ok(URI).

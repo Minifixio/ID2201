@@ -10,8 +10,9 @@ bench(Host, Port) ->
     Finish - Start.
 
 % bench function for multiple processes
-% P: number of processes
-% N: number of requests per process
+% params :
+%   - P : number of processes
+%   - N : number of requests per process
 bench(Host, Port, P, N) ->
     Start = erlang:system_time(micro_seconds),
     Parent = self(),
@@ -21,6 +22,12 @@ bench(Host, Port, P, N) ->
     Finish - Start.
 
 % recursively spawn P processes that each make N requests
+% params :
+%   - P : number of processes
+%   - N : number of requests per process
+%   - Host : host
+%   - Port : port
+%   - Parent : parent process
 spawn_parallel(P, N, Host, Port, Parent) ->
     case P of
         0 -> 
@@ -34,6 +41,8 @@ spawn_parallel(P, N, Host, Port, Parent) ->
     end.
 
 % wait for all processes to finish (done message must be sent P times)
+% params :
+%   - P : number of processes
 wait_for_parallel(P) ->
     case P of
         0 -> 
@@ -47,6 +56,11 @@ wait_for_parallel(P) ->
 
 % recursively make N requests
 % when done, send done message to Parent
+% params :
+%   - N : number of requests
+%   - Host : host
+%   - Port : port
+%   - Parent : parent process
 run(N, Host, Port, Parent) ->
         if
             N == 0 ->
@@ -57,6 +71,10 @@ run(N, Host, Port, Parent) ->
                 run(N-1, Host, Port, Parent)
         end.
 
+% make a request to the server
+% params :
+%   - Host : host
+%   - Port : port
 request(Host, Port) ->
     Opt = [list, {active, false}, {reuseaddr, true}],
     {ok, Server} = gen_tcp:connect(Host, Port, Opt),
