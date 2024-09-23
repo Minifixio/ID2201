@@ -1,12 +1,14 @@
 -module(dijkstra).
 -export([table/2, route/2]).
 
+% Return the length of the shortest path to Node in Sorted
 entry(Node, Sorted) ->
     case lists:keyfind(Node, 1, Sorted) of
         false -> 0;
         {Node, Length, _} -> Length
     end.
 
+% Replace the entry for Node in Sorted with N and Gateway
 replace(Node, N, Gateway, Sorted) ->
     case lists:keyfind(Node, 1, Sorted) of
         false -> Sorted;
@@ -15,6 +17,7 @@ replace(Node, N, Gateway, Sorted) ->
             lists:keysort(2, [{Node, N, Gateway} | Sorted1])
     end.
 
+% Update the shortest path to Node in Sorted with N and Gateway
 update(Node, N, Gateway, Sorted) ->
     case entry(Node, Sorted) of
         0 -> Sorted;
@@ -25,6 +28,7 @@ update(Node, N, Gateway, Sorted) ->
             end
     end.
 
+% Iterate over Sorted, updating the shortest paths in Table
 iterate(Sorted, Map, Table) ->
     case Sorted of
         [] -> Table;
@@ -40,6 +44,7 @@ iterate(Sorted, Map, Table) ->
             iterate(NewSorted, Map, [{Node, Gateway} | Table])
     end.
 
+% Create a routing table from Gateways and Map
 table(Gateways, Map) ->
     Sorted = lists:keysort(2, 
         lists:foldl(
@@ -52,6 +57,7 @@ table(Gateways, Map) ->
     ),
     iterate(Sorted, Map, []).
 
+% Return the gateway to Node in Table
 route(Node, Table) ->
     case lists:keyfind(Node, 1, Table) of
         false -> notfound;

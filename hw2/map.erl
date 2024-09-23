@@ -3,18 +3,21 @@
 
 new() -> [].
 
+% Update the map with a new node and its links
 update(Node, Links, Map) ->
     case lists:keyfind(Node, 1, Map) of
         false -> [{Node, Links} | Map];
         {Node, _} -> [{Node, Links} | lists:keydelete(Node, 1, Map)]
     end.
 
+% Get the links of a node
 reachable(Node, Map) ->
     case lists:keyfind(Node, 1, Map) of
         false -> [];
         {Node, Links} -> Links
     end.
 
+% Get all nodes in the map
 all_nodes(Map) ->
     L = [],
     lists:foldl(fun({Node, Links}, Acc) -> 
