@@ -80,7 +80,7 @@ log_queue(Clock, LogsQueue, Config) ->
                     false -> 
                         [{T, F, M} | Acc]
                 end
-            end, [], LogsQueue);
+            end, [], lists:keysort(1, LogsQueue));
         3 -> 
             lists:foldl(fun({T, F, M}, Acc) -> 
                 case vect:safe(T, Clock) of

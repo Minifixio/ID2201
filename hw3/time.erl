@@ -21,11 +21,11 @@ clock(Nodes) ->
 % Return a clock that has been updated given that we have
 % received a log message from a node at a given time
 update(Node, Time, Clock) ->
-    dict:store(Node, merge(Time, dict:fetch(Node, Clock)), Clock).
+    dict:store(Node, Time, Clock).
 
 % Returns true or false if it safe to log 
 % an event that happened at a given time or not 
 safe(Time, Clock)  ->
     dict:fold(fun(_, T, Acc) -> 
-        leq(T, Time) and Acc
+        leq(Time, T) and Acc
     end, true, Clock).

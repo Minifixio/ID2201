@@ -43,7 +43,8 @@ loop(Name, Log, Peers, Sleep, Jitter, Time, Config) ->
                     NewTime = TimeRcv;
                 % Part 2: Lamport time
                 2 ->
-                    NewTime = time:merge(TimeRcv, Time);
+                    NewTimeTemp = time:merge(TimeRcv, Time),
+                    NewTime = time:inc(Name, NewTimeTemp);
                 % Part 3: Vector clock
                 3 ->
                     NewTime = vect:merge(TimeRcv, Time)

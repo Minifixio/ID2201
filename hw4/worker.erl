@@ -109,6 +109,7 @@ worker(Id, Cast, Color, Gui, Sleep) ->
 
 	%% That's all folks
 	stop ->
+		io:format("worker ~w stopped~n", [Id]),
 	    ok;
 
 	%% Someone from above wants us to multicast a message.
